@@ -6,18 +6,18 @@ const {
   deleteJob: removeJob,
 } = require("../services/jobService");
 
-function getJobs(jobs) {
+function getJobs() {
   return (req, res) => {
-    const jobList = getAllJobs(jobs);
+    const jobList = getAllJobs();
     res.json(jobList);
   };
 }
 
-function getJobById(jobs) {
+function getJobById() {
   return (req, res) => {
     const id = Number(req.params.id);
 
-    const job = findJobById(jobs, id);
+    const job = findJobById(id);
 
     if (!job) {
       return res.status(404).json({
@@ -28,32 +28,32 @@ function getJobById(jobs) {
   };
 }
 
-function createJob(jobs) {
+function createJob() {
   return (req, res) => {
-    const newJob = addJob(jobs, req.body);
+    const newJob = addJob(req.body);
     res.status(201).json(newJob);
   };
 }
 
-function updateJob(jobs) {
+function updateJob() {
   return (req, res) => {
     const id = Number(req.params.id);
 
-    const updatedJob = editJob(jobs, id, req.body);
+    const updatedJob = editJob(id, req.body);
 
     if (!updatedJob) {
       return res.status(404).json({
-        message: "job not found",
+        message: "Job not found",
       });
     }
     res.json(updatedJob);
   };
 }
 
-function deleteJob(jobs) {
+function deleteJob() {
   return (req, res) => {
     const id = Number(req.params.id);
-    const deletedJob = removeJob(jobs, id);
+    const deletedJob = removeJob(id);
 
     if (!deletedJob) {
       return res.status(404).json({
