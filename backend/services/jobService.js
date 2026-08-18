@@ -1,15 +1,36 @@
 const pool = require("../config/db");
 
-async function getAllJobs(location) {
-  if (location) {
-    const result = await pool.query(
-      "SELECT * FROM jobs WHERE LOWER(location) = LOWER($1)",
-      [location],
-    );
+async function getAllJobs(search, location, minSalary, maxSalary) {
+  let query = "SELECT * FROM jobs";
+  const values = [];
+  const conditions = [];
 
-    return result.rows;
+  if (search) {
+    values.push(`%${search}%`);
+    conditions.push(
+      `(LOWER(title) LIKE LOWER($${values.length}) OR LOWER(company) LIKE LOWER($${values.length}))`,
+    );
   }
-  const result = await pool.query("SELECT * FROM jobs");
+
+  if (location) {
+    values.push(location);
+    conditions.push(`LOWER(location) = LOWER($${values.length})`);
+  }
+
+  if (minSalary) {
+    values.push(minSalary);
+    conditions.push(`salary >= $${values.length}`);
+  }
+
+  if (maxSalary) {
+    values.push(maxSalary);
+    conditions.push(`salary <= $${values.length}`);
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+  const result = await pool.query(query, values);
 
   return result.rows;
 }

@@ -9,7 +9,12 @@ const {
 function getJobs() {
   return async (req, res, next) => {
     try {
-      const jobList = await getAllJobs(req.query.location);
+      const jobList = await getAllJobs(
+        req.query.search,
+        req.query.location,
+        req.query.minSalary,
+        req.query.maxSalary,
+      );
 
       res.json(jobList);
     } catch (error) {
