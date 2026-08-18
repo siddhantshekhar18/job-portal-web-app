@@ -10,10 +10,10 @@ function getJobs() {
   return async (req, res, next) => {
     try {
       const jobList = await getAllJobs(
-        req.query.search,
-        req.query.location,
-        req.query.minSalary,
-        req.query.maxSalary,
+        req.jobQuery.search,
+        req.jobQuery.location,
+        req.jobQuery.minSalary,
+        req.jobQuery.maxSalary,
       );
 
       res.json(jobList);
