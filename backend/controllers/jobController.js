@@ -7,63 +7,83 @@ const {
 } = require("../services/jobService");
 
 function getJobs() {
-  return (req, res) => {
-    const jobList = getAllJobs();
-    res.json(jobList);
+  return async (req, res, next) => {
+    try {
+      const jobList = await getAllJobs(req.query.location);
+
+      res.json(jobList);
+    } catch (error) {
+      next(error);
+    }
   };
 }
 
 function getJobById() {
-  return (req, res) => {
-    const id = Number(req.params.id);
+  return async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+      const job = await findJobById(id);
 
-    const job = findJobById(id);
-
-    if (!job) {
-      return res.status(404).json({
-        message: "job not found",
-      });
+      if (!job) {
+        return res.status(404).json({
+          message: "Job not found",
+        });
+      }
+      res.json(job);
+    } catch (error) {
+      next(error);
     }
-    res.json(job);
   };
 }
 
 function createJob() {
-  return (req, res) => {
-    const newJob = addJob(req.body);
-    res.status(201).json(newJob);
+  return async (req, res, next) => {
+    try {
+      const newJob = await addJob(req.body);
+      res.status(201).json(newJob);
+    } catch (error) {
+      next(error);
+    }
   };
 }
 
 function updateJob() {
-  return (req, res) => {
-    const id = Number(req.params.id);
+  return async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
 
-    const updatedJob = editJob(id, req.body);
+      const updatedJob = await editJob(id, req.body);
 
-    if (!updatedJob) {
-      return res.status(404).json({
-        message: "Job not found",
-      });
+      if (!updatedJob) {
+        return res.status(404).json({
+          message: "Job not found",
+        });
+      }
+      res.json(updatedJob);
+    } catch (error) {
+      next(error);
     }
-    res.json(updatedJob);
   };
 }
 
 function deleteJob() {
-  return (req, res) => {
-    const id = Number(req.params.id);
-    const deletedJob = removeJob(id);
+  return async (req, res, next) => {
+    try {
+      const id = Number(req.params.id);
+      const deletedJob = await removeJob(id);
 
-    if (!deletedJob) {
-      return res.status(404).json({
-        message: "Job not found",
+      if (!deletedJob) {
+        return res.status(404).json({
+          message: "Job not found",
+        });
+      }
+      res.json({
+        message: "Job deleted successfully",
+        job: deletedJob,
       });
+    } catch (error) {
+      next(error);
     }
-    res.json({
-      message: "Job deleted successfully",
-      job: deletedJob,
-    });
   };
 }
 

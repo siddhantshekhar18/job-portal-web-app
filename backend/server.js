@@ -1,4 +1,5 @@
 const express = require("express");
+const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 const jobRoutes = require("./routes/jobRoutes");
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
     message: "Job portal API is running",
   });
 });
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

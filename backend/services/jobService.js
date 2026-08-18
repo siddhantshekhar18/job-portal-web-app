@@ -1,57 +1,62 @@
-const jobs = require("../data/jobs");
+const pool = require("../config/db");
 
-function getAllJobs() {
-  return jobs;
-}
+async function getAllJobs(location) {
+  if (location) {
+    const result = await pool.query(
+      "SELECT * FROM jobs WHERE LOWER(location) = LOWER($1)",
+      [location],
+    );
 
-function getJobById(id) {
-  return jobs.find((job) => job.id === id);
-}
-
-function createJob(jobData) {
-  const newJob = {
-    id: jobs.length + 1,
-    title: jobData.title.trim(),
-    company: jobData.company.trim(),
-    location: jobData.location.trim(),
-    salary: jobData.salary,
-  };
-
-  jobs.push(newJob);
-
-  return newJob;
-}
-
-function updateJob(id, jobData) {
-  const jobIndex = jobs.findIndex((job) => job.id === id);
-
-  if (jobIndex === -1) {
-    return null;
+    return result.rows;
   }
+  const result = await pool.query("SELECT * FROM jobs");
 
-  const updatedJob = {
-    id: id,
-    title: jobData.title.trim(),
-    company: jobData.company.trim(),
-    location: jobData.location.trim(),
-    salary: jobData.salary,
-  };
-
-  jobs[jobIndex] = updatedJob;
-
-  return updatedJob;
+  return result.rows;
 }
 
-function deleteJob(id) {
-  const jobIndex = jobs.findIndex((job) => job.id === id);
+async function getJobById(id) {
+  const result = await pool.query("SELECT * FROM jobs WHERE id = $1", [id]);
 
-  if (jobIndex === -1) {
-    return null;
-  }
+  return result.rows[0];
+}
 
-  const deletedJob = jobs.splice(jobIndex, 1);
+async function createJob(job) {
+  const { title, company, location, salary } = job;
 
-  return deletedJob[0];
+  const result = await pool.query(
+    `INSERT INTO jobs (title, company, location, salary)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`,
+    [title, company, location, salary],
+  );
+
+  return result.rows[0];
+}
+
+async function updateJob(id, jobData) {
+  const { title, company, location, salary } = jobData;
+
+  const result = await pool.query(
+    `UPDATE jobs
+     SET title = $1,
+         company = $2,
+         location = $3,
+         salary = $4
+     WHERE id = $5
+     RETURNING *`,
+    [title, company, location, salary, id],
+  );
+
+  return result.rows[0];
+}
+
+async function deleteJob(id) {
+  const result = await pool.query(
+    "DELETE FROM jobs WHERE id = $1 RETURNING *",
+    [id],
+  );
+
+  return result.rows[0];
 }
 
 module.exports = {
