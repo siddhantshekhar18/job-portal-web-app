@@ -14,6 +14,8 @@ function getJobs() {
         req.jobQuery.location,
         req.jobQuery.minSalary,
         req.jobQuery.maxSalary,
+        req.jobQuery.page,
+        req.jobQuery.limit,
       );
 
       res.json(jobList);

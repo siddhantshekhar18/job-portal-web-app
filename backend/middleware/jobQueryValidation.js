@@ -1,5 +1,32 @@
 function validateJobQuery(req, res, next) {
-  const { search, location, minSalary, maxSalary } = req.query;
+  const { search, location, minSalary, maxSalary, page, limit } = req.query;
+
+  let parsedPage = 1;
+  let parsedLimit = 10;
+
+  if (page !== undefined) {
+    parsedPage = Number(page);
+
+    if (!Number.isFinite(parsedPage) || parsedPage <= 0) {
+      return res.status(400).json({
+        message: "Page must be a positive number.",
+      });
+    }
+  }
+
+  if (limit !== undefined) {
+    parsedLimit = Number(limit);
+
+    if (
+      !Number.isFinite(parsedLimit) ||
+      parsedLimit <= 0 ||
+      parsedLimit > 100
+    ) {
+      return res.status(400).json({
+        message: "Limit must be a positive number between 1 and 100.",
+      });
+    }
+  }
 
   if (search !== undefined) {
     if (typeof search !== "string" || search.trim() === "") {
@@ -55,10 +82,9 @@ function validateJobQuery(req, res, next) {
     location: location?.trim(),
     minSalary: parsedMinSalary,
     maxSalary: parsedMaxSalary,
+    page: parsedPage,
+    limit: parsedLimit,
   };
-
-  console.log("NORMALIZED QUERY:", req.jobQuery);
-  console.log("minSalary type:", typeof req.jobQuery.minSalary);
 
   next();
 }

@@ -1,6 +1,6 @@
 const pool = require("../config/db");
 
-async function getAllJobs(search, location, minSalary, maxSalary) {
+async function getAllJobs(search, location, minSalary, maxSalary, page, limit) {
   let query = "SELECT * FROM jobs";
   const values = [];
   const conditions = [];
@@ -30,9 +30,39 @@ async function getAllJobs(search, location, minSalary, maxSalary) {
   if (conditions.length > 0) {
     query += " WHERE " + conditions.join(" AND ");
   }
+
+  const countValues = [...values];
+  let countQuery = "SELECT COUNT(*) FROM jobs";
+  if (conditions.length > 0) {
+    countQuery += " WHERE " + conditions.join(" AND ");
+  }
+
+  const countResult = await pool.query(countQuery, countValues);
+  const totalCount = parseInt(countResult.rows[0].count);
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  query += " ORDER BY id";
+
+  const offset = (page - 1) * limit;
+
+  values.push(limit);
+  query += ` LIMIT $${values.length}`;
+
+  values.push(offset);
+  query += ` OFFSET $${values.length}`;
+
   const result = await pool.query(query, values);
 
-  return result.rows;
+  return {
+    data: result.rows,
+    pagination: {
+      page,
+      limit,
+      totalJobs: totalCount,
+      totalPages,
+    },
+  };
 }
 
 async function getJobById(id) {
