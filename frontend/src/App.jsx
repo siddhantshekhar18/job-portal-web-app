@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Layout from "./components/Layout";
 import Hero from "./components/Hero";
 import JobsSection from "./components/JobsSection";
+import JobDetails from "./components/JobDetails";
+
 import { getJobs } from "./services/jobApi";
 
-function App() {
+function JobsPage() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,7 +30,6 @@ function App() {
     totalPages: 0,
   });
 
-  // Fetch jobs whenever the query changes
   useEffect(() => {
     async function fetchJobs() {
       try {
@@ -59,7 +62,6 @@ function App() {
     fetchJobs();
   }, [jobQuery]);
 
-  // Search
   function handleSearch(params) {
     setJobQuery((current) => ({
       ...current,
@@ -68,7 +70,6 @@ function App() {
     }));
   }
 
-  // Filters
   function handleFilter(params) {
     setJobQuery((current) => ({
       ...current,
@@ -77,7 +78,6 @@ function App() {
     }));
   }
 
-  // Pagination
   function handlePageChange(page) {
     setJobQuery((current) => ({
       ...current,
@@ -86,23 +86,33 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-950">
-      <Navbar />
+    <>
+      <Hero onSearch={handleSearch} />
 
-      <main>
-        <Hero onSearch={handleSearch} />
+      <JobsSection
+        jobs={jobs}
+        loading={loading}
+        error={error}
+        query={jobQuery}
+        onFilter={handleFilter}
+        pagination={pagination}
+        onPageChange={handlePageChange}
+      />
+    </>
+  );
+}
 
-        <JobsSection
-          jobs={jobs}
-          loading={loading}
-          error={error}
-          query={jobQuery}
-          onFilter={handleFilter}
-          pagination={pagination}
-          onPageChange={handlePageChange}
-        />
-      </main>
-    </div>
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<JobsPage />} />
+
+          <Route path="/jobs/:id" element={<JobDetails />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
