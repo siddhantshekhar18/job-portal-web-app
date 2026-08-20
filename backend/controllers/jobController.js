@@ -34,10 +34,15 @@ function getJobById() {
 
       if (!job) {
         return res.status(404).json({
+          success: false,
           message: "Job not found",
         });
       }
-      res.json(job);
+
+      res.json({
+        success: true,
+        data: job,
+      });
     } catch (error) {
       next(error);
     }
@@ -48,7 +53,11 @@ function createJob() {
   return async (req, res, next) => {
     try {
       const newJob = await addJob(req.body);
-      res.status(201).json(newJob);
+
+      res.status(201).json({
+        success: true,
+        data: newJob,
+      });
     } catch (error) {
       next(error);
     }
@@ -64,10 +73,15 @@ function updateJob() {
 
       if (!updatedJob) {
         return res.status(404).json({
+          success: false,
           message: "Job not found",
         });
       }
-      res.json(updatedJob);
+
+      res.json({
+        success: true,
+        data: updatedJob,
+      });
     } catch (error) {
       next(error);
     }
@@ -78,16 +92,20 @@ function deleteJob() {
   return async (req, res, next) => {
     try {
       const id = Number(req.params.id);
+
       const deletedJob = await removeJob(id);
 
       if (!deletedJob) {
         return res.status(404).json({
+          success: false,
           message: "Job not found",
         });
       }
-      res.json({
+
+      res.status(200).json({
+        success: true,
         message: "Job deleted successfully",
-        job: deletedJob,
+        data: deletedJob,
       });
     } catch (error) {
       next(error);

@@ -69,6 +69,7 @@ async function getAllJobs(
   const result = await pool.query(query, values);
 
   return {
+    success: true,
     data: result.rows,
     pagination: {
       page,

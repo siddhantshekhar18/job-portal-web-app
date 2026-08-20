@@ -10,6 +10,7 @@ function validateJobQuery(req, res, next) {
 
     if (!Number.isFinite(parsedPage) || parsedPage <= 0) {
       return res.status(400).json({
+        success: false,
         message: "Page must be a positive number.",
       });
     }
@@ -24,6 +25,7 @@ function validateJobQuery(req, res, next) {
       parsedLimit > 100
     ) {
       return res.status(400).json({
+        success: false,
         message: "Limit must be a positive number between 1 and 100.",
       });
     }
@@ -32,6 +34,7 @@ function validateJobQuery(req, res, next) {
   if (search !== undefined) {
     if (typeof search !== "string" || search.trim() === "") {
       return res.status(400).json({
+        success: false,
         message: "Invalid search query. It must be a non-empty string.",
       });
     }
@@ -40,6 +43,7 @@ function validateJobQuery(req, res, next) {
   if (location !== undefined) {
     if (typeof location !== "string" || location.trim() === "") {
       return res.status(400).json({
+        success: false,
         message: "Location must be a non-empty string.",
       });
     }
@@ -53,6 +57,7 @@ function validateJobQuery(req, res, next) {
 
     if (!Number.isFinite(parsedMinSalary) || parsedMinSalary <= 0) {
       return res.status(400).json({
+        success: false,
         message: "Minimum salary must be a positive number.",
       });
     }
@@ -63,6 +68,7 @@ function validateJobQuery(req, res, next) {
 
     if (!Number.isFinite(parsedMaxSalary) || parsedMaxSalary <= 0) {
       return res.status(400).json({
+        success: false,
         message: "Maximum salary must be a positive number.",
       });
     }
@@ -74,6 +80,7 @@ function validateJobQuery(req, res, next) {
     parsedMinSalary > parsedMaxSalary
   ) {
     return res.status(400).json({
+      success: false,
       message: "Minimum salary cannot be greater than maximum salary.",
     });
   }
@@ -83,6 +90,7 @@ function validateJobQuery(req, res, next) {
 
     if (!allowedSorts.includes(sort)) {
       return res.status(400).json({
+        success: false,
         message:
           "Invalid sort option. Allowed values are 'salary_asc' or 'salary_desc'.",
       });
