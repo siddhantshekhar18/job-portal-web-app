@@ -8,7 +8,16 @@ function App() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchParams, setSearchParams] = useState({});
+
+  const [jobQuery, setJobQuery] = useState({
+    search: undefined,
+    location: undefined,
+    minSalary: undefined,
+    maxSalary: undefined,
+    sort: undefined,
+    page: 1,
+    limit: 6,
+  });
 
   useEffect(() => {
     async function fetchJobs() {
@@ -16,12 +25,11 @@ function App() {
         setLoading(true);
         setError("");
 
-        const response = await getJobs(searchParams);
+        const response = await getJobs(jobQuery);
 
         setJobs(response.data);
       } catch (error) {
         console.error(error);
-
         setError("Failed to fetch jobs. Please try again later.");
       } finally {
         setLoading(false);
@@ -29,10 +37,22 @@ function App() {
     }
 
     fetchJobs();
-  }, [searchParams]);
+  }, [jobQuery]);
 
   function handleSearch(params) {
-    setSearchParams(params);
+    setJobQuery((current) => ({
+      ...current,
+      ...params,
+      page: 1,
+    }));
+  }
+
+  function handleFilter(params) {
+    setJobQuery((current) => ({
+      ...current,
+      ...params,
+      page: 1,
+    }));
   }
 
   return (
@@ -42,7 +62,13 @@ function App() {
       <main>
         <Hero onSearch={handleSearch} />
 
-        <JobsSection jobs={jobs} loading={loading} error={error} />
+        <JobsSection
+          jobs={jobs}
+          loading={loading}
+          error={error}
+          query={jobQuery}
+          onFilter={handleFilter}
+        />
       </main>
     </div>
   );
