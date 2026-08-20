@@ -1,5 +1,6 @@
 function validateJobQuery(req, res, next) {
-  const { search, location, minSalary, maxSalary, page, limit } = req.query;
+  const { search, location, minSalary, maxSalary, page, limit, sort } =
+    req.query;
 
   let parsedPage = 1;
   let parsedLimit = 10;
@@ -77,6 +78,17 @@ function validateJobQuery(req, res, next) {
     });
   }
 
+  if (sort !== undefined) {
+    const allowedSorts = ["salary_asc", "salary_desc"];
+
+    if (!allowedSorts.includes(sort)) {
+      return res.status(400).json({
+        message:
+          "Invalid sort option. Allowed values are 'salary_asc' or 'salary_desc'.",
+      });
+    }
+  }
+
   req.jobQuery = {
     search: search?.trim(),
     location: location?.trim(),
@@ -84,6 +96,7 @@ function validateJobQuery(req, res, next) {
     maxSalary: parsedMaxSalary,
     page: parsedPage,
     limit: parsedLimit,
+    sort,
   };
 
   next();

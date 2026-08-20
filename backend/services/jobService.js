@@ -1,6 +1,14 @@
 const pool = require("../config/db");
 
-async function getAllJobs(search, location, minSalary, maxSalary, page, limit) {
+async function getAllJobs(
+  search,
+  location,
+  minSalary,
+  maxSalary,
+  page,
+  limit,
+  sort,
+) {
   let query = "SELECT * FROM jobs";
   const values = [];
   const conditions = [];
@@ -42,7 +50,13 @@ async function getAllJobs(search, location, minSalary, maxSalary, page, limit) {
 
   const totalPages = Math.ceil(totalCount / limit);
 
-  query += " ORDER BY id";
+  if (sort === "salary_asc") {
+    query += " ORDER BY salary ASC, id ASC";
+  } else if (sort === "salary_desc") {
+    query += " ORDER BY salary DESC, id ASC";
+  } else {
+    query += " ORDER BY id ASC";
+  }
 
   const offset = (page - 1) * limit;
 
