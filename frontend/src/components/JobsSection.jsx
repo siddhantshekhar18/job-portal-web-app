@@ -1,31 +1,7 @@
 import { ChevronDown, Filter, SlidersHorizontal } from "lucide-react";
 import JobCard from "./JobCard";
 
-const sampleJobs = [
-  {
-    id: 1,
-    title: "Frontend Developer",
-    company: "TechCorp",
-    location: "Remote",
-    salary: 60000,
-  },
-  {
-    id: 2,
-    title: "Backend Developer",
-    company: "CodeLabs",
-    location: "Bangalore",
-    salary: 70000,
-  },
-  {
-    id: 3,
-    title: "Full Stack Developer",
-    company: "InnovateTech",
-    location: "Hyderabad",
-    salary: 80000,
-  },
-];
-
-function JobsSection() {
+function JobsSection({ jobs, loading, error }) {
   return (
     <section className="bg-slate-50 py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -59,7 +35,9 @@ function JobsSection() {
           </button>
 
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-slate-500">3 jobs found</span>
+            <span className="text-sm text-slate-500">
+              {loading ? "Loading..." : `${jobs.length} jobs found`}
+            </span>
 
             <button className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
               <SlidersHorizontal size={17} />
@@ -69,11 +47,29 @@ function JobsSection() {
           </div>
         </div>
 
-        {/* Content */}
+        {/* Jobs */}
         <div className="mt-6 grid gap-6 lg:grid-cols-3">
-          {sampleJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
+          {loading ? (
+            <div className="col-span-full flex min-h-64 items-center justify-center">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+            </div>
+          ) : error ? (
+            <div className="col-span-full rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+              <p className="font-medium text-red-700">{error}</p>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="col-span-full rounded-2xl border border-slate-200 bg-white p-12 text-center">
+              <p className="text-lg font-semibold text-slate-900">
+                No jobs found
+              </p>
+
+              <p className="mt-2 text-sm text-slate-500">
+                Try changing your search or filters.
+              </p>
+            </div>
+          ) : (
+            jobs.map((job) => <JobCard key={job.id} job={job} />)
+          )}
         </div>
 
         {/* Mobile view all */}

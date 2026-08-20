@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { ArrowRight, MapPin, Search } from "lucide-react";
 
-function Hero() {
+function Hero({ onSearch }) {
+  const [search, setSearch] = useState("");
+  const [location, setLocation] = useState("");
   return (
     <section className="relative overflow-hidden bg-slate-950">
       {/* Background decoration */}
@@ -37,6 +40,8 @@ function Hero() {
 
                 <input
                   type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Job title, keyword or company"
                   className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
@@ -48,13 +53,23 @@ function Hero() {
 
                 <input
                   type="text"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   placeholder="Location"
                   className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
                 />
               </div>
 
               {/* Search button */}
-              <button className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-500">
+              <button
+                onClick={() => {
+                  onSearch({
+                    search: search.trim() || undefined,
+                    location: location.trim() || undefined,
+                  });
+                }}
+                className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+              >
                 Search Jobs
                 <ArrowRight size={17} />
               </button>
