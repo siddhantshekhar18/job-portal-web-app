@@ -19,6 +19,14 @@ function App() {
     limit: 6,
   });
 
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 6,
+    totalJobs: 0,
+    totalPages: 0,
+  });
+
+  // Fetch jobs whenever the query changes
   useEffect(() => {
     async function fetchJobs() {
       try {
@@ -28,9 +36,21 @@ function App() {
         const response = await getJobs(jobQuery);
 
         setJobs(response.data);
+
+        setPagination(
+          response.pagination || {
+            page: jobQuery.page,
+            limit: jobQuery.limit,
+            totalJobs: 0,
+            totalPages: 0,
+          },
+        );
       } catch (error) {
-        console.error(error);
+        console.error("Failed to fetch jobs:", error);
+
         setError("Failed to fetch jobs. Please try again later.");
+
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -39,6 +59,7 @@ function App() {
     fetchJobs();
   }, [jobQuery]);
 
+  // Search
   function handleSearch(params) {
     setJobQuery((current) => ({
       ...current,
@@ -47,11 +68,20 @@ function App() {
     }));
   }
 
+  // Filters
   function handleFilter(params) {
     setJobQuery((current) => ({
       ...current,
       ...params,
       page: 1,
+    }));
+  }
+
+  // Pagination
+  function handlePageChange(page) {
+    setJobQuery((current) => ({
+      ...current,
+      page,
     }));
   }
 
@@ -68,6 +98,8 @@ function App() {
           error={error}
           query={jobQuery}
           onFilter={handleFilter}
+          pagination={pagination}
+          onPageChange={handlePageChange}
         />
       </main>
     </div>

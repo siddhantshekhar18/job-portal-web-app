@@ -2,8 +2,17 @@ import { Filter, X } from "lucide-react";
 import { useState } from "react";
 import JobCard from "./JobCard";
 import FilterPanel from "./FilterPanel";
+import Pagination from "./Pagination";
 
-function JobsSection({ jobs, loading, error, query, onFilter }) {
+function JobsSection({
+  jobs,
+  loading,
+  error,
+  query,
+  onFilter,
+  pagination,
+  onPageChange,
+}) {
   const [showFilters, setShowFilters] = useState(false);
 
   const hasActiveFilters =
@@ -150,6 +159,11 @@ function JobsSection({ jobs, loading, error, query, onFilter }) {
             </div>
           )}
         </div>
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={onPageChange}
+        />
 
         {/* Mobile view all */}
         <button
