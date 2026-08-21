@@ -14,7 +14,7 @@ function Navbar() {
           </div>
 
           <span className="text-xl font-bold tracking-tight text-slate-950">
-            Job<span className="text-blue-600">Portal</span>
+            Easy<span className="text-blue-600">Jobs</span>
           </span>
         </a>
 

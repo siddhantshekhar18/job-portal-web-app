@@ -39,7 +39,7 @@ function JobCard({ job }) {
       {/* Job information */}
       <div className="mt-5">
         <div className="mb-2 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
-          Full-time
+          {job.employment_type || "Full-time"}
         </div>
 
         <Link to={`/jobs/${job.id}`} className="block">

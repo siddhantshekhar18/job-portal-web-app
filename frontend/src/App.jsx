@@ -5,6 +5,7 @@ import Layout from "./components/Layout";
 import Hero from "./components/Hero";
 import JobsSection from "./components/JobsSection";
 import JobDetails from "./components/JobDetails";
+import ApplyJob from "./components/ApplyJob";
 
 import { getJobs } from "./services/jobApi";
 
@@ -110,6 +111,8 @@ function App() {
           <Route path="/" element={<JobsPage />} />
 
           <Route path="/jobs/:id" element={<JobDetails />} />
+
+          <Route path="/jobs/:id/apply" element={<ApplyJob />} />
         </Route>
       </Routes>
     </BrowserRouter>

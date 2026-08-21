@@ -14,7 +14,7 @@ function Footer() {
               </div>
 
               <span className="text-xl font-bold tracking-tight text-white">
-                EasyJob
+                EasyJobs
               </span>
             </div>
 
