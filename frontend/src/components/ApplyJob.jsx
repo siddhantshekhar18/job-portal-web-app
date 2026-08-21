@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   CheckCircle2,
   FileText,
+  Loader2,
   Mail,
   MapPin,
   Phone,
@@ -12,39 +13,44 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { getJobById } from "../services/jobApi";
+import { submitApplication } from "../services/applicationApi";
+import { useAuth } from "../hooks/useAuth";
 
 function ApplyJob() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [job, setJob] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [jobLoading, setJobLoading] = useState(true);
+  const [jobError, setJobError] = useState("");
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    full_name: user?.name || "",
+    email: user?.email || "",
     phone: "",
-    coverLetter: "",
-    resume: null,
+    cover_letter: "",
   });
 
+  const [resumeFile, setResumeFile] = useState(null);
   const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     async function fetchJob() {
       try {
-        setLoading(true);
-        setError("");
+        setJobLoading(true);
+        setJobError("");
 
         const response = await getJobById(id);
 
         setJob(response.data);
       } catch (error) {
         console.error(error);
-        setError("Failed to load this job.");
+        setJobError("Failed to load this job.");
       } finally {
-        setLoading(false);
+        setJobLoading(false);
       }
     }
 
@@ -55,50 +61,50 @@ function ApplyJob() {
     const { name, value } = event.target;
 
     setFormData((current) => ({ ...current, [name]: value }));
-
     setFormErrors((current) => ({ ...current, [name]: "" }));
+    setSubmitError("");
   }
 
   function handleFileChange(event) {
     const file = event.target.files?.[0] || null;
 
-    setFormData((current) => ({ ...current, resume: file }));
-
+    setResumeFile(file);
     setFormErrors((current) => ({ ...current, resume: "" }));
+    setSubmitError("");
   }
 
   function validate() {
     const errors = {};
 
-    if (!formData.name.trim()) {
-      errors.name = "Please enter your full name";
+    if (!formData.full_name.trim()) {
+      errors.full_name = "Full name is required.";
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.email.trim()) {
-      errors.email = "Please enter your email address";
+      errors.email = "Please enter your email address.";
     } else if (!emailRegex.test(formData.email.trim())) {
-      errors.email = "Please enter a valid email address";
+      errors.email = "Please enter a valid email address.";
     }
 
     if (!formData.phone.trim()) {
-      errors.phone = "Please enter your phone number";
+      errors.phone = "Please enter your phone number.";
+    } else if (!/^\+?[\d\s\-()]{7,20}$/.test(formData.phone.trim())) {
+      errors.phone = "Please enter a valid phone number.";
     }
 
-    if (!formData.resume) {
-      errors.resume = "Please upload your resume";
-    }
-
-    if (!formData.coverLetter.trim()) {
-      errors.coverLetter = "Please write a short cover letter";
+    if (!resumeFile) {
+      errors.resume = "Please upload your resume.";
     }
 
     return errors;
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
+
+    setSubmitError("");
 
     const errors = validate();
 
@@ -108,10 +114,41 @@ function ApplyJob() {
       return;
     }
 
-    setSubmitted(true);
+    setSubmitting(true);
+
+    try {
+      const data = new FormData();
+
+      data.append("job_id", id);
+      data.append("full_name", formData.full_name.trim());
+      data.append("email", formData.email.trim());
+      data.append("phone", formData.phone.trim());
+      data.append("resume", resumeFile);
+
+      if (formData.cover_letter.trim()) {
+        data.append("cover_letter", formData.cover_letter.trim());
+      }
+
+      await submitApplication(data);
+
+      setSubmitted(true);
+    } catch (error) {
+      const status = error.response?.status;
+      const message =
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.";
+
+      if (status === 409) {
+        setSubmitError("You have already applied for this job.");
+      } else {
+        setSubmitError(message);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  if (loading) {
+  if (jobLoading) {
     return (
       <div className="min-h-screen bg-slate-50 py-16">
         <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -124,13 +161,13 @@ function ApplyJob() {
     );
   }
 
-  if (error) {
+  if (jobError) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6">
         <div className="w-full max-w-md rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
           <h2 className="text-xl font-bold text-red-800">Unable to load job</h2>
 
-          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <p className="mt-2 text-sm text-red-600">{jobError}</p>
 
           <Link
             to="/"
@@ -176,30 +213,29 @@ function ApplyJob() {
             </div>
 
             <h2 className="mt-6 text-2xl font-bold text-slate-950">
-              Application submitted
+              Application submitted successfully
             </h2>
 
             <p className="mt-3 text-slate-600">
               Your application for <strong>{job.title}</strong> at{" "}
-              <strong>{job.company}</strong> has been received. We will share
-              this feature with the backend team to complete the submission
-              pipeline.
+              <strong>{job.company}</strong> has been received. You can track
+              its status from your dashboard.
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                to="/dashboard/applications"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
+              >
+                View Applications
+              </Link>
+
               <Link
                 to={`/jobs/${job.id}`}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 <ArrowLeft size={17} />
                 Back to job
-              </Link>
-
-              <Link
-                to="/"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
-              >
-                Browse more jobs
               </Link>
             </div>
           </div>
@@ -238,11 +274,21 @@ function ApplyJob() {
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-10 space-y-6" noValidate>
+            {submitError && (
+              <div className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {submitError}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+              className="mt-8 space-y-6"
+              noValidate
+            >
               <div className="grid gap-6 sm:grid-cols-2">
                 <div>
                   <label
-                    htmlFor="name"
+                    htmlFor="full_name"
                     className="block text-sm font-semibold text-slate-700"
                   >
                     Full name
@@ -256,17 +302,19 @@ function ApplyJob() {
 
                     <input
                       type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                      id="full_name"
+                      name="full_name"
+                      value={formData.full_name}
                       onChange={handleChange}
                       placeholder="Jane Doe"
                       className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                     />
                   </div>
 
-                  {formErrors.name && (
-                    <p className="mt-1.5 text-xs text-red-600">{formErrors.name}</p>
+                  {formErrors.full_name && (
+                    <p className="mt-1.5 text-xs text-red-600">
+                      {formErrors.full_name}
+                    </p>
                   )}
                 </div>
 
@@ -296,7 +344,9 @@ function ApplyJob() {
                   </div>
 
                   {formErrors.email && (
-                    <p className="mt-1.5 text-xs text-red-600">{formErrors.email}</p>
+                    <p className="mt-1.5 text-xs text-red-600">
+                      {formErrors.email}
+                    </p>
                   )}
                 </div>
               </div>
@@ -328,7 +378,9 @@ function ApplyJob() {
                   </div>
 
                   {formErrors.phone && (
-                    <p className="mt-1.5 text-xs text-red-600">{formErrors.phone}</p>
+                    <p className="mt-1.5 text-xs text-red-600">
+                      {formErrors.phone}
+                    </p>
                   )}
                 </div>
 
@@ -357,10 +409,18 @@ function ApplyJob() {
                   </div>
 
                   {formErrors.resume ? (
-                    <p className="mt-1.5 text-xs text-red-600">{formErrors.resume}</p>
+                    <p className="mt-1.5 text-xs text-red-600">
+                      {formErrors.resume}
+                    </p>
                   ) : (
                     <p className="mt-1.5 text-xs text-slate-400">
                       PDF, DOC, or DOCX up to 5 MB
+                    </p>
+                  )}
+
+                  {resumeFile && (
+                    <p className="mt-1.5 text-xs text-green-600">
+                      Selected: {resumeFile.name}
                     </p>
                   )}
                 </div>
@@ -368,10 +428,11 @@ function ApplyJob() {
 
               <div>
                 <label
-                  htmlFor="coverLetter"
+                  htmlFor="cover_letter"
                   className="block text-sm font-semibold text-slate-700"
                 >
-                  Cover letter
+                  Cover letter{" "}
+                  <span className="font-normal text-slate-400">(optional)</span>
                 </label>
 
                 <div className="relative mt-2">
@@ -381,28 +442,30 @@ function ApplyJob() {
                   />
 
                   <textarea
-                    id="coverLetter"
-                    name="coverLetter"
-                    value={formData.coverLetter}
+                    id="cover_letter"
+                    name="cover_letter"
+                    value={formData.cover_letter}
                     onChange={handleChange}
                     rows={6}
                     placeholder="Tell us why you are a great fit for this role..."
                     className="w-full resize-none rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </div>
-
-                {formErrors.coverLetter && (
-                  <p className="mt-1.5 text-xs text-red-600">
-                    {formErrors.coverLetter}
-                  </p>
-                )}
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-500 sm:w-auto"
+                disabled={submitting}
+                className="flex w-full items-center justify-center rounded-xl bg-blue-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
               >
-                Submit Application
+                {submitting ? (
+                  <>
+                    <Loader2 size={18} className="mr-2 animate-spin" />
+                    Submitting application...
+                  </>
+                ) : (
+                  "Submit Application"
+                )}
               </button>
             </form>
           </div>
@@ -430,6 +493,11 @@ function ApplyJob() {
               <div className="flex items-center gap-2">
                 <BriefcaseBusiness size={16} className="text-blue-600" />
                 {job.employment_type || "Full-time"}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-slate-900">Salary:</span>
+                ₹{Number(job.salary).toLocaleString("en-IN")} / year
               </div>
             </div>
           </aside>

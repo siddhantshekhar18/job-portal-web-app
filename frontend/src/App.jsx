@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import { AuthProvider } from "./context/AuthContext";
 import Layout from "./components/Layout";
 import Hero from "./components/Hero";
 import JobsSection from "./components/JobsSection";
 import JobDetails from "./components/JobDetails";
 import ApplyJob from "./components/ApplyJob";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Dashboard from "./components/Dashboard";
+import Applications from "./components/Applications";
+import ApplicationDetails from "./components/ApplicationDetails";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import { getJobs } from "./services/jobApi";
 
@@ -106,15 +113,55 @@ function JobsPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<JobsPage />} />
+      <AuthProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<JobsPage />} />
 
-          <Route path="/jobs/:id" element={<JobDetails />} />
+            <Route path="/jobs/:id" element={<JobDetails />} />
 
-          <Route path="/jobs/:id/apply" element={<ApplyJob />} />
-        </Route>
-      </Routes>
+            <Route
+              path="/jobs/:id/apply"
+              element={
+                <ProtectedRoute>
+                  <ApplyJob />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/login" element={<Login />} />
+
+            <Route path="/register" element={<Register />} />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dashboard/applications"
+              element={
+                <ProtectedRoute>
+                  <Applications />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dashboard/applications/:id"
+              element={
+                <ProtectedRoute>
+                  <ApplicationDetails />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

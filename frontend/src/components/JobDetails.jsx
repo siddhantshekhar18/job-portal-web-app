@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getJobById } from "../services/jobApi";
+import { useAuth } from "../hooks/useAuth";
 
 function JobDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +47,13 @@ function JobDetails() {
   }, [id]);
 
   function handleApply() {
-    navigate(`/jobs/${id}/apply`);
+    if (isAuthenticated) {
+      navigate(`/jobs/${id}/apply`);
+    } else {
+      navigate("/login", {
+        state: { from: { pathname: `/jobs/${id}/apply` } },
+      });
+    }
   }
 
   function toggleSave() {
