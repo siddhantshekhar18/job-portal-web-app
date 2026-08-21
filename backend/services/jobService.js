@@ -87,30 +87,92 @@ async function getJobById(id) {
 }
 
 async function createJob(job) {
-  const { title, company, location, salary } = job;
+  const {
+    title,
+    company,
+    location,
+    salary,
+    description,
+    requirements,
+    responsibilities,
+    employment_type,
+    experience_level,
+    skills,
+  } = job;
 
   const result = await pool.query(
-    `INSERT INTO jobs (title, company, location, salary)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO jobs (
+       title,
+       company,
+       location,
+       salary,
+       description,
+       requirements,
+       responsibilities,
+       employment_type,
+       experience_level,
+       skills
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
      RETURNING *`,
-    [title, company, location, salary],
+    [
+      title,
+      company,
+      location,
+      salary,
+      description ?? null,
+      JSON.stringify(requirements ?? []),
+      JSON.stringify(responsibilities ?? []),
+      employment_type ?? null,
+      experience_level ?? null,
+      JSON.stringify(skills ?? []),
+    ],
   );
 
   return result.rows[0];
 }
 
 async function updateJob(id, jobData) {
-  const { title, company, location, salary } = jobData;
+  const {
+    title,
+    company,
+    location,
+    salary,
+    description,
+    requirements,
+    responsibilities,
+    employment_type,
+    experience_level,
+    skills,
+  } = jobData;
 
   const result = await pool.query(
     `UPDATE jobs
-     SET title = $1,
-         company = $2,
-         location = $3,
-         salary = $4
-     WHERE id = $5
+     SET title = COALESCE($1, title),
+         company = COALESCE($2, company),
+         location = COALESCE($3, location),
+         salary = COALESCE($4, salary),
+         description = COALESCE($5, description),
+         requirements = COALESCE($6, requirements),
+         responsibilities = COALESCE($7, responsibilities),
+         employment_type = COALESCE($8, employment_type),
+         experience_level = COALESCE($9, experience_level),
+         skills = COALESCE($10, skills)
+     WHERE id = $11
      RETURNING *`,
-    [title, company, location, salary, id],
+    [
+      title ?? null,
+      company ?? null,
+      location ?? null,
+      salary ?? null,
+      description ?? null,
+      requirements !== undefined ? JSON.stringify(requirements) : null,
+      responsibilities !== undefined ? JSON.stringify(responsibilities) : null,
+      employment_type ?? null,
+      experience_level ?? null,
+      skills !== undefined ? JSON.stringify(skills) : null,
+      id,
+    ],
   );
 
   return result.rows[0];
