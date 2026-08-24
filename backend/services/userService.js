@@ -5,7 +5,7 @@ const SALT_ROUNDS = 12;
 
 async function findUserByEmail(email) {
   const result = await pool.query(
-    "SELECT id, name, email, password_hash, created_at, updated_at FROM users WHERE email = $1",
+    "SELECT id, name, email, role, password_hash, created_at, updated_at FROM users WHERE email = $1",
     [email],
   );
 
@@ -14,21 +14,21 @@ async function findUserByEmail(email) {
 
 async function findUserById(id) {
   const result = await pool.query(
-    "SELECT id, name, email, created_at, updated_at FROM users WHERE id = $1",
+    "SELECT id, name, email, role, created_at, updated_at FROM users WHERE id = $1",
     [id],
   );
 
   return result.rows[0];
 }
 
-async function createUser(name, email, password) {
+async function createUser(name, email, password, role = "candidate") {
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
 
   const result = await pool.query(
-    `INSERT INTO users (name, email, password_hash)
-     VALUES ($1, $2, $3)
-     RETURNING id, name, email, created_at, updated_at`,
-    [name, email, passwordHash],
+    `INSERT INTO users (name, email, password_hash, role)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, name, email, role, created_at, updated_at`,
+    [name, email, passwordHash, role],
   );
 
   return result.rows[0];

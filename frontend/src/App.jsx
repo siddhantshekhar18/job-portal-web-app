@@ -12,6 +12,12 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import Applications from "./components/Applications";
 import ApplicationDetails from "./components/ApplicationDetails";
+import EmployerDashboard from "./components/EmployerDashboard";
+import EmployerJobs from "./components/EmployerJobs";
+import EmployerJobForm from "./components/EmployerJobForm";
+import EmployerApplications from "./components/EmployerApplications";
+import EmployerApplicationDetails from "./components/EmployerApplicationDetails";
+import AdminDashboard from "./components/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import { getJobs } from "./services/jobApi";
@@ -136,7 +142,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["candidate"]}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -145,7 +151,7 @@ function App() {
             <Route
               path="/dashboard/applications"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["candidate"]}>
                   <Applications />
                 </ProtectedRoute>
               }
@@ -154,8 +160,73 @@ function App() {
             <Route
               path="/dashboard/applications/:id"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["candidate"]}>
                   <ApplicationDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Employer routes */}
+            <Route
+              path="/employer/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employer/jobs"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerJobs />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employer/jobs/new"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerJobForm />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employer/jobs/:id/edit"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerJobForm />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employer/applications"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerApplications />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/employer/applications/:id"
+              element={
+                <ProtectedRoute allowedRoles={["employer", "admin"]}>
+                  <EmployerApplicationDetails />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminDashboard />
                 </ProtectedRoute>
               }
             />

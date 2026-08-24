@@ -5,8 +5,8 @@ async function getAllJobs(
   location,
   minSalary,
   maxSalary,
-  page,
-  limit,
+  page = 1,
+  limit = 10,
   sort,
 ) {
   let query = "SELECT * FROM jobs";
@@ -86,7 +86,7 @@ async function getJobById(id) {
   return result.rows[0];
 }
 
-async function createJob(job) {
+async function createJob(job, employerId) {
   const {
     title,
     company,
@@ -111,9 +111,10 @@ async function createJob(job) {
        responsibilities,
        employment_type,
        experience_level,
-       skills
+       skills,
+       employer_id
      )
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       title,
@@ -126,6 +127,7 @@ async function createJob(job) {
       employment_type ?? null,
       experience_level ?? null,
       JSON.stringify(skills ?? []),
+      employerId,
     ],
   );
 
@@ -187,10 +189,100 @@ async function deleteJob(id) {
   return result.rows[0];
 }
 
+async function findJobsByEmployer(employerId) {
+  const result = await pool.query(
+    `SELECT
+       j.id,
+       j.title,
+       j.company,
+       j.location,
+       j.salary,
+       j.employment_type,
+       COUNT(a.id) AS application_count
+     FROM jobs j
+     LEFT JOIN applications a ON a.job_id = j.id
+     WHERE j.employer_id = $1
+     GROUP BY j.id
+     ORDER BY j.id DESC`,
+    [employerId],
+  );
+
+  return result.rows;
+}
+
+async function findJobByIdAndEmployer(id, employerId) {
+  const result = await pool.query(
+    "SELECT * FROM jobs WHERE id = $1 AND employer_id = $2",
+    [id, employerId],
+  );
+
+  return result.rows[0];
+}
+
+async function updateJobByEmployer(id, jobData, employerId) {
+  const {
+    title,
+    company,
+    location,
+    salary,
+    description,
+    requirements,
+    responsibilities,
+    employment_type,
+    experience_level,
+    skills,
+  } = jobData;
+
+  const result = await pool.query(
+    `UPDATE jobs
+     SET title = $1,
+         company = $2,
+         location = $3,
+         salary = $4,
+         description = $5,
+         requirements = $6,
+         responsibilities = $7,
+         employment_type = $8,
+         experience_level = $9,
+         skills = $10
+     WHERE id = $11 AND employer_id = $12
+     RETURNING *`,
+    [
+      title,
+      company,
+      location,
+      salary,
+      description ?? null,
+      JSON.stringify(requirements ?? []),
+      JSON.stringify(responsibilities ?? []),
+      employment_type ?? null,
+      experience_level ?? null,
+      JSON.stringify(skills ?? []),
+      id,
+      employerId,
+    ],
+  );
+
+  return result.rows[0];
+}
+
+async function deleteJobByEmployer(id, employerId) {
+  const result = await pool.query(
+    "DELETE FROM jobs WHERE id = $1 AND employer_id = $2 RETURNING *",
+    [id, employerId],
+  );
+
+  return result.rows[0];
+}
+
 module.exports = {
   getAllJobs,
   getJobById,
   createJob,
   updateJob,
   deleteJob,
+  findJobsByEmployer,
+  findJobByIdAndEmployer,
+  updateJobByEmployer,
+  deleteJobByEmployer,
 };

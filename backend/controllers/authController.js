@@ -15,6 +15,7 @@ function generateToken(user) {
     {
       id: user.id,
       email: user.email,
+      role: user.role,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN },
@@ -36,11 +37,44 @@ async function register(req, res, next) {
       });
     }
 
+    // Role is never accepted from the frontend; default is candidate
     const newUser = await createUser(name.trim(), normalizedEmail, password);
 
     res.status(201).json({
       success: true,
       message: "Account created successfully",
+      user: newUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function registerEmployer(req, res, next) {
+  try {
+    const { name, email, password } = req.body;
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await findUserByEmail(normalizedEmail);
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: "An account with this email already exists",
+      });
+    }
+
+    const newUser = await createUser(
+      name.trim(),
+      normalizedEmail,
+      password,
+      "employer",
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Employer account created successfully",
       user: newUser,
     });
   } catch (error) {
@@ -108,6 +142,7 @@ async function me(req, res, next) {
 
 module.exports = {
   register,
+  registerEmployer,
   login,
   me,
 };

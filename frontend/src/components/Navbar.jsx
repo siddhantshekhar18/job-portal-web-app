@@ -1,4 +1,13 @@
-import { BriefcaseBusiness, Loader2, LogOut, Menu, User, X } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  Shield,
+  User,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -6,6 +15,18 @@ import { useAuth } from "../hooks/useAuth";
 function Navbar() {
   const { user, isAuthenticated, loading, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const role = user?.role || "candidate";
+
+  const dashboardLink =
+    role === "admin"
+      ? "/admin/dashboard"
+      : role === "employer"
+        ? "/employer/dashboard"
+        : "/dashboard";
+
+  const isEmployer = role === "employer" || role === "admin";
+  const isAdmin = role === "admin";
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
@@ -40,18 +61,38 @@ function Navbar() {
           {isAuthenticated && (
             <>
               <Link
-                to="/dashboard"
+                to={dashboardLink}
                 className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
               >
                 Dashboard
               </Link>
 
-              <Link
-                to="/dashboard/applications"
-                className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
-              >
-                Applications
-              </Link>
+              {role === "candidate" && (
+                <Link
+                  to="/dashboard/applications"
+                  className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
+                >
+                  Applications
+                </Link>
+              )}
+
+              {isEmployer && (
+                <>
+                  <Link
+                    to="/employer/jobs"
+                    className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
+                  >
+                    My Jobs
+                  </Link>
+
+                  <Link
+                    to="/employer/applications"
+                    className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
+                  >
+                    Applications
+                  </Link>
+                </>
+              )}
             </>
           )}
         </nav>
@@ -63,10 +104,14 @@ function Navbar() {
           ) : isAuthenticated ? (
             <>
               <Link
-                to="/dashboard"
+                to={dashboardLink}
                 className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
-                <User size={17} />
+                {isAdmin ? (
+                  <Shield size={17} className="text-amber-600" />
+                ) : (
+                  <User size={17} />
+                )}
                 {user?.name?.split(" ")[0] || "Account"}
               </Link>
 
@@ -130,20 +175,43 @@ function Navbar() {
             {isAuthenticated && (
               <>
                 <Link
-                  to="/dashboard"
+                  to={dashboardLink}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-medium text-slate-600"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-slate-600"
                 >
+                  <LayoutDashboard size={16} />
                   Dashboard
                 </Link>
 
-                <Link
-                  to="/dashboard/applications"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="text-sm font-medium text-slate-600"
-                >
-                  Applications
-                </Link>
+                {role === "candidate" && (
+                  <Link
+                    to="/dashboard/applications"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-medium text-slate-600"
+                  >
+                    Applications
+                  </Link>
+                )}
+
+                {isEmployer && (
+                  <>
+                    <Link
+                      to="/employer/jobs"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium text-slate-600"
+                    >
+                      My Jobs
+                    </Link>
+
+                    <Link
+                      to="/employer/applications"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium text-slate-600"
+                    >
+                      Applications
+                    </Link>
+                  </>
+                )}
               </>
             )}
 
@@ -151,7 +219,7 @@ function Navbar() {
               {loading ? null : isAuthenticated ? (
                 <>
                   <Link
-                    to="/dashboard"
+                    to={dashboardLink}
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-center text-sm font-semibold text-slate-700"
                   >
