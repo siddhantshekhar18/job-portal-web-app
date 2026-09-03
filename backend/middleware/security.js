@@ -42,7 +42,9 @@ function configureCors(allowedOrigins) {
     if (origin === requestOrigin || allowedOrigins.length === 0) return next();
 
     if (!allowedOrigins.includes(origin)) {
-      return res.status(403).json({ success: false, message: "Origin is not allowed" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Origin is not allowed" });
     }
 
     res.set({

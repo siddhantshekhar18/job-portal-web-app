@@ -24,6 +24,6 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        sync: false
+        value: https://easyjobs-portal.netlify.app
       - key: TRUST_PROXY
         value: "true"
