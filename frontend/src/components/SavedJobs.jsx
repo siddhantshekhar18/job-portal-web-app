@@ -13,7 +13,7 @@ function SavedJobs() {
     async function loadSavedJobs() {
       try {
         const response = await getSavedJobs();
-        setJobs(response.data);
+        setJobs(Array.isArray(response.data) ? response.data : []);
       } catch (requestError) {
         console.error("Failed to load saved jobs:", requestError);
         setError("We could not load your saved jobs. Please try again.");

@@ -43,7 +43,7 @@ function EmployerApplications() {
 
         const response = await getEmployerApplications();
 
-        setApplications(response.data);
+        setApplications(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error(error);
         setError("Failed to load applications.");

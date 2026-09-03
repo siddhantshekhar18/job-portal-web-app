@@ -42,7 +42,7 @@ function EmployerJobs() {
 
         const response = await getEmployerJobs();
 
-        setJobs(response.data);
+        setJobs(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error(error);
         setError("Failed to load your jobs.");

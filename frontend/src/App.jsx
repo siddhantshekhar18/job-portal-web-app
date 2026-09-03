@@ -76,7 +76,7 @@ function JobsPage() {
 
         const response = await getJobs(jobQuery);
 
-        setJobs(response.data);
+        setJobs(Array.isArray(response.data) ? response.data : []);
 
         setPagination(
           response.pagination || {
