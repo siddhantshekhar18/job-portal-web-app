@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getJobById } from "../services/jobApi";
+import { getSavedJobs, removeSavedJob, saveJob } from "../services/savedJobApi";
 import { useAuth } from "../hooks/useAuth";
 
 function JobDetails() {
@@ -25,6 +26,7 @@ function JobDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function fetchJob() {
@@ -46,6 +48,24 @@ function JobDetails() {
     fetchJob();
   }, [id]);
 
+  useEffect(() => {
+    async function fetchSavedState() {
+      if (!isAuthenticated) {
+        setSaved(false);
+        return;
+      }
+
+      try {
+        const response = await getSavedJobs();
+        setSaved(response.data.some((savedJob) => savedJob.id === Number(id)));
+      } catch (error) {
+        console.error("Failed to load saved job state:", error);
+      }
+    }
+
+    fetchSavedState();
+  }, [id, isAuthenticated]);
+
   function handleApply() {
     if (isAuthenticated) {
       navigate(`/jobs/${id}/apply`);
@@ -56,8 +76,21 @@ function JobDetails() {
     }
   }
 
-  function toggleSave() {
-    setSaved((current) => !current);
+  async function toggleSave() {
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: { pathname: `/jobs/${id}` } } });
+      return;
+    }
+
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (saved) await removeSavedJob(id);
+      else await saveJob(id);
+      setSaved((current) => !current);
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {
@@ -435,21 +468,22 @@ function JobDetails() {
               <button
                 type="button"
                 onClick={toggleSave}
+                disabled={saving}
                 className={`flex w-full items-center justify-center gap-2 rounded-xl border px-5 py-3.5 text-sm font-semibold transition ${
                   saved
                     ? "border-green-200 bg-green-50 text-green-700 hover:bg-green-100"
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
+                } disabled:cursor-not-allowed disabled:opacity-60`}
               >
                 {saved ? (
                   <>
                     <BookmarkCheck size={18} />
-                    Saved
+                    {saving ? "Updating..." : "Saved"}
                   </>
                 ) : (
                   <>
                     <Bookmark size={18} />
-                    Save Job
+                    {saving ? "Updating..." : "Save Job"}
                   </>
                 )}
               </button>

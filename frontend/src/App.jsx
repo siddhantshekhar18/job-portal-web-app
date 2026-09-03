@@ -20,10 +20,14 @@ import EmployerApplicationDetails from "./components/EmployerApplicationDetails"
 import AdminDashboard from "./components/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FooterPage from "./components/FooterPage";
+import SavedJobs from "./components/SavedJobs";
 
 import { getJobs } from "./services/jobApi";
+import { getSavedJobs } from "./services/savedJobApi";
+import { useAuth } from "./hooks/useAuth";
 
 function JobsPage() {
+  const { isAuthenticated } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,6 +48,25 @@ function JobsPage() {
     totalJobs: 0,
     totalPages: 0,
   });
+  const [savedJobIds, setSavedJobIds] = useState(new Set());
+
+  useEffect(() => {
+    async function fetchSavedJobs() {
+      if (!isAuthenticated) {
+        setSavedJobIds(new Set());
+        return;
+      }
+
+      try {
+        const response = await getSavedJobs();
+        setSavedJobIds(new Set(response.data.map((job) => job.id)));
+      } catch (error) {
+        console.error("Failed to load saved jobs:", error);
+      }
+    }
+
+    fetchSavedJobs();
+  }, [isAuthenticated]);
 
   useEffect(() => {
     async function fetchJobs() {
@@ -100,6 +123,15 @@ function JobsPage() {
     }));
   }
 
+  function handleSavedChange(jobId, isSaved) {
+    setSavedJobIds((current) => {
+      const next = new Set(current);
+      if (isSaved) next.add(jobId);
+      else next.delete(jobId);
+      return next;
+    });
+  }
+
   return (
     <>
       <Hero onSearch={handleSearch} />
@@ -112,6 +144,8 @@ function JobsPage() {
         onFilter={handleFilter}
         pagination={pagination}
         onPageChange={handlePageChange}
+        savedJobIds={savedJobIds}
+        onSavedChange={handleSavedChange}
       />
     </>
   );
@@ -141,6 +175,42 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/footer/:page" element={<FooterPage />} />
+
+            <Route
+              path="/post-job"
+              element={
+                <ProtectedRoute>
+                  <EmployerJobForm />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/my-jobs"
+              element={
+                <ProtectedRoute>
+                  <EmployerJobs />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/my-jobs/:id/edit"
+              element={
+                <ProtectedRoute>
+                  <EmployerJobForm />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/saved-jobs"
+              element={
+                <ProtectedRoute>
+                  <SavedJobs />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/dashboard"

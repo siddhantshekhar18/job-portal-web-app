@@ -9,7 +9,8 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 import {
   deleteEmployerJob,
   getEmployerJobs,
@@ -21,6 +22,12 @@ function formatSalary(salary) {
 
 function EmployerJobs() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const { user } = useAuth();
+  const isPersonalJobsPage = pathname.startsWith("/my-jobs");
+  const jobsPath = isPersonalJobsPage ? "/my-jobs" : "/employer/jobs";
+  const postJobPath = isPersonalJobsPage ? "/post-job" : "/employer/jobs/new";
+  const canViewApplications = user?.role === "employer" || user?.role === "admin";
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,16 +96,10 @@ function EmployerJobs() {
           </div>
 
           <div className="flex gap-3">
-            <Link
-              to="/employer/dashboard"
-              className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              <ArrowLeft size={17} />
-              Dashboard
-            </Link>
+            <Link to="/" className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"><ArrowLeft size={17} />Browse jobs</Link>
 
             <Link
-              to="/employer/jobs/new"
+              to={postJobPath}
               className="inline-flex items-center gap-2 self-start rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-600"
             >
               <Plus size={17} />
@@ -130,7 +131,7 @@ function EmployerJobs() {
             </p>
 
             <Link
-              to="/employer/jobs/new"
+              to={postJobPath}
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-600"
             >
               Post a job
@@ -183,20 +184,13 @@ function EmployerJobs() {
                       </td>
 
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() =>
-                            navigate(`/employer/applications?job=${job.id}`)
-                          }
-                          className="font-medium text-blue-600 transition hover:text-blue-500"
-                        >
-                          {job.application_count || 0} applications
-                        </button>
+                        {canViewApplications ? <button onClick={() => navigate(`/employer/applications?job=${job.id}`)} className="font-medium text-blue-600 transition hover:text-blue-500">{job.application_count || 0} applications</button> : <span>{job.application_count || 0} applications</span>}
                       </td>
 
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            to={`/employer/jobs/${job.id}/edit`}
+                            to={`${jobsPath}/${job.id}/edit`}
                             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                           >
                             <Pencil size={15} />

@@ -1,6 +1,5 @@
 const express = require("express");
 const authenticate = require("../middleware/authenticate");
-const authorizeRoles = require("../middleware/authorizeRoles");
 const { validateJobId, validateJob } = require("../middleware/jobValidation");
 const {
   getMyJobs,
@@ -14,7 +13,6 @@ const router = express.Router();
 
 module.exports = () => {
   router.use(authenticate);
-  router.use(authorizeRoles("employer", "admin"));
 
   router.get("/", getMyJobs);
   router.get("/:id", validateJobId, getJobByIdForEmployer);

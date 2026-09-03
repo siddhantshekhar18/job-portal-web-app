@@ -58,6 +58,13 @@ function Navbar() {
             Find Jobs
           </Link>
 
+          <Link
+            to="/post-job"
+            className="text-sm font-medium text-slate-600 transition hover:text-blue-600"
+          >
+            Post a Job
+          </Link>
+
           {isAuthenticated && (
             <>
               <Link
@@ -170,6 +177,14 @@ function Navbar() {
               className="text-sm font-medium text-slate-600"
             >
               Find Jobs
+            </Link>
+
+            <Link
+              to="/post-job"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-slate-600"
+            >
+              Post a Job
             </Link>
 
             {isAuthenticated && (

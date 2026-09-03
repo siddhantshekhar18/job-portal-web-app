@@ -1,7 +1,33 @@
-import { ArrowUpRight, BriefcaseBusiness, Clock3, MapPin } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowUpRight, Bookmark, BookmarkCheck, BriefcaseBusiness, Clock3, Loader2, MapPin } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { removeSavedJob, saveJob } from "../services/savedJobApi";
 
-function JobCard({ job }) {
+function JobCard({ job, saved = false, onSavedChange }) {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: location } });
+      return;
+    }
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (saved) await removeSavedJob(job.id);
+      else await saveJob(job.id);
+      onSavedChange?.(job.id, !saved);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <article className="group relative rounded-2xl border border-slate-200 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl hover:shadow-slate-200/60">
       {/* Header */}
@@ -14,25 +40,12 @@ function JobCard({ job }) {
         {/* Save button */}
         <button
           type="button"
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-          aria-label={`Save ${job.title} at ${job.company}`}
+          onClick={handleSave}
+          disabled={saving}
+          className={`rounded-lg p-2 transition disabled:cursor-not-allowed disabled:opacity-60 ${saved ? "bg-blue-50 text-blue-600 hover:bg-blue-100" : "text-slate-400 hover:bg-slate-100 hover:text-slate-700"}`}
+          aria-label={`${saved ? "Remove" : "Save"} ${job.title} at ${job.company}`}
         >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-          </svg>
+          {saving ? <Loader2 size={20} className="animate-spin" /> : saved ? <BookmarkCheck size={20} /> : <Bookmark size={20} />}
         </button>
       </div>
 

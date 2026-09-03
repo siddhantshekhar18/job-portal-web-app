@@ -88,7 +88,7 @@ const pages = {
     sections: [
       ["Candidates", "For help with your account or applications, include the email address linked to your profile."],
       ["Employers", "Tell us about your organisation and hiring needs so we can point you to the right next step."],
-      ["General enquiries", "Email support@easyjobs.example. We aim to respond with useful, clear guidance."],
+      ["General enquiries", "Email siddhantishekhar@gmail.com. We aim to respond with useful, clear guidance."],
     ],
   },
   privacy: {

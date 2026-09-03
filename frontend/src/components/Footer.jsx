@@ -45,7 +45,7 @@ function Footer() {
 
               <li>
                 <Link
-                  to="/footer/saved-jobs"
+                  to="/saved-jobs"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Saved Jobs
@@ -81,7 +81,7 @@ function Footer() {
             <ul className="mt-5 space-y-3">
               <li>
                 <Link
-                  to="/employer/jobs/new"
+                  to="/post-job"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Post a Job

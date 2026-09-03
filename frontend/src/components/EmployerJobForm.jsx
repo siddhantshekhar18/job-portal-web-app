@@ -252,7 +252,7 @@ function EmployerJobForm() {
         await createEmployerJob(payload);
       }
 
-      navigate("/employer/jobs");
+      navigate("/my-jobs");
     } catch (error) {
       console.error(error);
 
@@ -278,7 +278,7 @@ function EmployerJobForm() {
     <div className="min-h-screen bg-slate-50 py-10 lg:py-16">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
         <Link
-          to="/employer/jobs"
+          to="/my-jobs"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-600"
         >
           <ArrowLeft size={17} />
@@ -533,7 +533,7 @@ function EmployerJobForm() {
               </button>
 
               <Link
-                to="/employer/jobs"
+                to="/my-jobs"
                 className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Cancel
