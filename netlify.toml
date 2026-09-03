@@ -5,3 +5,4 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  VITE_API_URL = "https://job-portal-web-app-f1kt.onrender.com/api"
