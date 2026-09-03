@@ -11,10 +11,7 @@ import {
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
-import {
-  deleteEmployerJob,
-  getEmployerJobs,
-} from "../services/employerApi";
+import { deleteEmployerJob, getEmployerJobs } from "../services/employerApi";
 
 function formatSalary(salary) {
   return `₹${Number(salary).toLocaleString("en-IN")}`;
@@ -27,7 +24,8 @@ function EmployerJobs() {
   const isPersonalJobsPage = pathname.startsWith("/my-jobs");
   const jobsPath = isPersonalJobsPage ? "/my-jobs" : "/employer/jobs";
   const postJobPath = isPersonalJobsPage ? "/post-job" : "/employer/jobs/new";
-  const canViewApplications = user?.role === "employer" || user?.role === "admin";
+  const canViewApplications =
+    user?.role === "employer" || user?.role === "admin";
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +94,13 @@ function EmployerJobs() {
           </div>
 
           <div className="flex gap-3">
-            <Link to="/" className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"><ArrowLeft size={17} />Browse jobs</Link>
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 self-start rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              <ArrowLeft size={17} />
+              Browse jobs
+            </Link>
 
             <Link
               to={postJobPath}
@@ -184,7 +188,18 @@ function EmployerJobs() {
                       </td>
 
                       <td className="px-6 py-4">
-                        {canViewApplications ? <button onClick={() => navigate(`/employer/applications?job=${job.id}`)} className="font-medium text-blue-600 transition hover:text-blue-500">{job.application_count || 0} applications</button> : <span>{job.application_count || 0} applications</span>}
+                        {canViewApplications ? (
+                          <button
+                            onClick={() =>
+                              navigate(`/employer/applications?job=${job.id}`)
+                            }
+                            className="font-medium text-blue-600 transition hover:text-blue-500"
+                          >
+                            {job.application_count || 0} applications
+                          </button>
+                        ) : (
+                          <span>{job.application_count || 0} applications</span>
+                        )}
                       </td>
 
                       <td className="px-6 py-4">

@@ -8,7 +8,10 @@ import {
   MapPin,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getEmployerApplications, updateApplicationStatus } from "../services/employerApi";
+import {
+  getEmployerApplications,
+  updateApplicationStatus,
+} from "../services/employerApi";
 import StatusBadge from "./StatusBadge";
 
 const STATUS_OPTIONS = [
