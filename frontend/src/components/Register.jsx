@@ -77,9 +77,13 @@ function Register() {
 
       setSuccess(true);
 
-      await login(formData.email.trim(), formData.password);
-
-      navigate("/", { replace: true });
+      try {
+        await login(formData.email.trim(), formData.password);
+        navigate("/", { replace: true });
+      } catch (loginError) {
+        console.error("Automatic login failed after registration:", loginError);
+        setError("Account created successfully. Please log in to continue.");
+      }
     } catch (error) {
       const message =
         error.response?.data?.message ||

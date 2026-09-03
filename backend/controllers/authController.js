@@ -10,6 +10,10 @@ const {
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET must be configured before starting the API");
+}
+
 function generateToken(user) {
   return jwt.sign(
     {
