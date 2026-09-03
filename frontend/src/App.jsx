@@ -19,6 +19,7 @@ import EmployerApplications from "./components/EmployerApplications";
 import EmployerApplicationDetails from "./components/EmployerApplicationDetails";
 import AdminDashboard from "./components/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FooterPage from "./components/FooterPage";
 
 import { getJobs } from "./services/jobApi";
 
@@ -138,6 +139,8 @@ function App() {
             <Route path="/login" element={<Login />} />
 
             <Route path="/register" element={<Register />} />
+
+            <Route path="/footer/:page" element={<FooterPage />} />
 
             <Route
               path="/dashboard"

@@ -1,12 +1,17 @@
 -- Migration: Create applications table for job applications
 
-CREATE TYPE application_status AS ENUM (
-  'pending',
-  'reviewing',
-  'shortlisted',
-  'rejected',
-  'accepted'
-);
+DO $$
+BEGIN
+  CREATE TYPE application_status AS ENUM (
+    'pending',
+    'reviewing',
+    'shortlisted',
+    'rejected',
+    'accepted'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
 
 CREATE TABLE IF NOT EXISTS applications (
   id SERIAL PRIMARY KEY,

@@ -1,4 +1,5 @@
 import { ArrowUpRight, BriefcaseBusiness } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
@@ -34,39 +35,39 @@ function Footer() {
 
             <ul className="mt-5 space-y-3">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Browse Jobs
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/saved-jobs"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Saved Jobs
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/dashboard/applications"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Applications
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/career-resources"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Career Resources
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -79,39 +80,39 @@ function Footer() {
 
             <ul className="mt-5 space-y-3">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/employer/jobs/new"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Post a Job
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/employer/applications"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Find Candidates
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/employer-solutions"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Employer Solutions
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/pricing"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Pricing
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -124,39 +125,39 @@ function Footer() {
 
             <ul className="mt-5 space-y-3">
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/about-us"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   About Us
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/contact"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/privacy"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/footer/terms"
                   className="text-sm text-slate-400 transition hover:text-white"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -175,13 +176,13 @@ function Footer() {
               </p>
             </div>
 
-            <a
-              href="/"
+            <Link
+              to="/"
               className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-500"
             >
               Explore Jobs
               <ArrowUpRight size={17} />
-            </a>
+            </Link>
           </div>
         </div>
 

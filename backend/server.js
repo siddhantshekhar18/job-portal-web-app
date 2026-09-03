@@ -1,4 +1,5 @@
 const express = require("express");
+const pool = require("./config/db");
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
@@ -9,7 +10,7 @@ const employerJobRoutes = require("./routes/employerJobRoutes");
 const employerApplicationRoutes = require("./routes/employerApplicationRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
@@ -27,6 +28,19 @@ app.get("/", (req, res) => {
 });
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+async function startServer() {
+  try {
+    await pool.query("SELECT 1");
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error(
+      `Unable to connect to PostgreSQL. Check DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, and DB_NAME. (${error.code || error.message})`,
+    );
+    process.exit(1);
+  }
+}
+
+startServer();
